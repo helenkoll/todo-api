@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Todo App</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+    }
+    li {
+      margin-top: 10px;
+    }
+    .todo-actions button {
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Todo List</h1>
+
+  <input id="title" type="text" placeholder="Title" />
+  <input id="description" type="text" placeholder="Description" />
+  <button onclick="addTodo()">Add</button>
+
+  <ul id="todoList"></ul>
+
+  <script>
+    const API_URL = 'http://localhost:8082/api/todos';
+
+    async function loadTodos() {
+      const response = await fetch(API_URL);
+      const todos = await response.json();
+
+      const list = document.getElementById('todoList');
+      list.innerHTML = '';
+      todos.forEach(todo => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <strong>${todo.title}</strong>: ${todo.description}
+          <span class="todo-actions">
+            <button onclick="editTodo(${todo.id}, '${todo.title}', '${todo.description}')">Edit</button>
+            <button onclick="deleteTodo(${todo.id})">Delete</button>
+          </span>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    async function addTodo() {
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+
+      if (!title || !description) return;
+
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description })
+      });
+
+      document.getElementById('title').value = '';
+      document.getElementById('description').value = '';
+
+      loadTodos();
+    }
+
+    async function deleteTodo(id) {
+      await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE'
+      });
+      loadTodos();
+    }
+
+    function editTodo(id, oldTitle, oldDescription) {
+      const title = prompt('Edit title:', oldTitle);
+      const description = prompt('Edit description:', oldDescription);
+
+      if (title !== null && description !== null) {
+        updateTodo(id, title, description);
+      }
+    }
+
+    async function updateTodo(id, title, description) {
+      await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description })
+      });
+      loadTodos();
+    }
+
+    loadTodos();
+  </script>
+</body>
+</html>
