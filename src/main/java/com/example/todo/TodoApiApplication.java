@@ -1,52 +1,42 @@
 package com.example.todo;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.example.todo.model.Todo;
-import com.example.todo.repository.TodoRepository;
+import com.example.todo.services.TodoService;
 
 @SpringBootApplication
 public class TodoApiApplication implements CommandLineRunner {
 
     Logger log = LoggerFactory.getLogger(TodoApiApplication.class);
-
+    
+    private TodoService todoService;
     public static void main(String[] args) {
         SpringApplication.run(TodoApiApplication.class, args);
     }
 
-    @Autowired
-    private TodoRepository todoRepository;//to call only service when need be 
-
     public List<Todo> getAllTodos() {
-        return todoRepository.findAll();
+        return todoService.getAllTodos();
     }
 
-    public Optional<Todo> getTodoById(Long id) {
-        return todoRepository.findById(id);
+    public Todo getTodoById(Long id) {
+        return todoService.getTodoById(id);
     }
 
     public Todo createTodo(Todo todo) {
-        return todoRepository.save(todo);
+        return todoService.createTodo(todo);
     }
 
     public Todo updateTodo(Long id, Todo updated) {
-        return todoRepository.findById(id).map(todo -> {
-            todo.setTitle(updated.getTitle());
-            todo.setCompleted(updated.isCompleted());
-            return todoRepository.save(todo);
-        }).orElseThrow(() -> new RuntimeException("Todo not found"));
-    }
-
+        return todoService.getTodoById(id);    }
     public void deleteTodo(Long id) {
-        todoRepository.deleteById(id);
+        todoService.deleteTodo(id);
     }
     
     //adding logging 

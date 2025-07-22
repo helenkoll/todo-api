@@ -3,6 +3,8 @@ package com.example.todo.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todo.model.Todo;
-import com.example.todo.service.TodoService;
+import com.example.todo.services.TodoService;
 
 @RestController
 @RequestMapping("/api/todos")
@@ -34,13 +36,19 @@ public class TodoController {
         return todoService.createTodo(todo);
     }
 
-    @PutMapping("/{id}")
-    public Todo updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
-        return todoService.updateTodo(id, todo).orElseThrow(() -> new RuntimeException("Todo not found"));// anti gia runtime exception-> response entity "404 not found"
+@PutMapping("/todos/{id}")
+public ResponseEntity<?> updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
+    Todo updatedTodo = (Todo) todoService.updateTodo(id, todo);
+    if (updatedTodo != null) {
+        return ResponseEntity.ok(updatedTodo);
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Todo not found");
     }
+}
 
     @DeleteMapping("/{id}")
     public void deleteTodo(@PathVariable Long id) {
-        todoService.deleteTodo(id);// 404 se periptwsi error 
+        todoService.deleteTodo(id); 
     }
+    //404 se periptwsi error
 }
