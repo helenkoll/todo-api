@@ -27,28 +27,33 @@ public class TodoController {
     private TodoService todoService;
 
     @GetMapping
-    public List<Todo> getAllTodos() {
-        return todoService.getAllTodos();
+    public ResponseEntity<List<Todo>> getAllTodos() {
+        return ResponseEntity.ok(todoService.getAllTodos());
     }
 
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo) {
-        return todoService.createTodo(todo);
+    public ResponseEntity<Todo> createTodo(@RequestBody Todo todo) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(todoService.createTodo(todo));
     }
 
-@PutMapping("/todos/{id}")
-public ResponseEntity<?> updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
-    Todo updatedTodo = (Todo) todoService.updateTodo(id, todo);
-    if (updatedTodo != null) {
-        return ResponseEntity.ok(updatedTodo);
-    } else {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Todo not found");
+    @PutMapping("{id}")
+    public ResponseEntity<?> updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
+        Todo updatedTodo = (Todo) todoService.updateTodo(id, todo);
+        if (updatedTodo != null) {
+            return ResponseEntity.ok(updatedTodo);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Todo not found");
+        }
     }
-}
 
     @DeleteMapping("/{id}")
-    public void deleteTodo(@PathVariable Long id) {
-        todoService.deleteTodo(id); 
+    public ResponseEntity<?> deleteTodo(@PathVariable Long id) {
+        try {
+            todoService.deleteTodo(id);
+            return ResponseEntity.ok("Todo deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Failed to delete todo: " + e.getMessage());
+        }
     }
-    //404 se periptwsi error
 }

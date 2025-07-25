@@ -30,7 +30,8 @@
   <ul id="todoList"></ul>
 
   <script>
-    const API_URL = 'http://localhost:8082/api/todos';
+    const API_URL = "http://localhost:8080/api/todos";
+    
 
     async function loadTodos() {
       const response = await fetch(API_URL);

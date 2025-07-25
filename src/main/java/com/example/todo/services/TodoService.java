@@ -29,10 +29,22 @@ public class TodoService {
     }
 
     public void deleteTodo(Long id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (!todoRepository.existsById(id)) {
+            throw new RuntimeException("Todo with ID " + id + " not found.");
+        }
+        todoRepository.deleteById(id);
     }
 
-    public Object updateTodo(Long id, Todo todo) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Todo updateTodo(Long id, Todo todo) {
+        Todo existingTodo = todoRepository.findById(id).orElse(null);
+        if (existingTodo == null) {
+            throw new RuntimeException("Todo with ID " + id + " not found.");
+        }
+
+        existingTodo.setTitle(todo.getTitle());
+        existingTodo.setDescription(todo.getDescription());
+        existingTodo.setCompleted(todo.isCompleted());
+
+        return todoRepository.save(existingTodo);
     }
 }
