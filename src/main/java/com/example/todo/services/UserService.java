@@ -11,7 +11,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepo;
 
-
     private SignupRequest register(SignupRequest req) {
         if (userRepo.existsByUsername(req.getUsername())) {
             throw new RuntimeException("Username already taken");
