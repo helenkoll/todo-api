@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.todo.security.JwtUtil;
+import com.example.todo.services.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,6 +21,19 @@ public class AuthController {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+        @Autowired
+    private UserService userService;
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody SignupRequest request) {
+        try {
+            com.example.todo.model.User registeredUser = userService.register(request);
+            return ResponseEntity.ok("User registered successfully: " + registeredUser.getUsername());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
