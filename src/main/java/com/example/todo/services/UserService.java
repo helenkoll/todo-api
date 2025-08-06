@@ -28,6 +28,7 @@ public class UserService implements UserDetailsService {
         User user = new User();
         user.setUsername(req.getUsername());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setRoles(req.getRole());
         return userRepo.save(user);
     }
 

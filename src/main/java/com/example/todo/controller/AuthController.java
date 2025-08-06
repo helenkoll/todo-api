@@ -1,10 +1,18 @@
 package com.example.todo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todo.security.JwtUtil;
 import com.example.todo.services.UserService;
@@ -46,7 +54,12 @@ public class AuthController {
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails.getUsername());
+        String role = userDetails.getAuthorities().stream()
+        .findFirst()
+        .map(GrantedAuthority::getAuthority)
+        .orElse("ROLE_USER");
+
+        final String jwt = jwtUtil.generateToken(userDetails.getUsername(), role);
 
         return ResponseEntity.ok(new AuthResponse(jwt));
     }

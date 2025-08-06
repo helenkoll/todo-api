@@ -1,6 +1,7 @@
 package com.example.todo.model;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,8 +39,7 @@ public class User implements UserDetails {
     @CollectionTable(name = "user_roles",
                      joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
-    private Set<Role> roles;
-
+    private Set<Role> roles = new HashSet<>();
 
     public Long getId() {
         return id;
