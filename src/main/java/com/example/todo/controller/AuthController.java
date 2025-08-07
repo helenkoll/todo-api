@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,19 +46,17 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(
+                    request.getUsername(), request.getPassword()));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        String role = userDetails.getAuthorities().stream()
-        .findFirst()
-        .map(GrantedAuthority::getAuthority)
-        .orElse("ROLE_USER");
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
 
-        final String jwt = jwtUtil.generateToken(userDetails.getUsername(), role);
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+
+        String jwt = jwtUtil.generateToken(userDetails.getUsername(), role);
 
         return ResponseEntity.ok(new AuthResponse(jwt));
     }
